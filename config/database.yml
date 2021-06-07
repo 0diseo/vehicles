@@ -61,6 +61,10 @@ development:
 test:
   <<: *default
   database: vehicles_test
+  host: localhost
+  username: <%= Rails.application.secrets.dig(:PG_USER) || "admin" %>
+  password: <%= Rails.application.secrets.dig(:PG_PASSWORD) || "admin" %>
+
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is

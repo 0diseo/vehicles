@@ -12,5 +12,7 @@ sudo -u postgres psql
 run seed
 rails db:seed
 
+rails db:test:prepare
+
 
 * ...
