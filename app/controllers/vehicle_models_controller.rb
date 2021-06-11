@@ -1,3 +1,5 @@
+require_relative '../services/vehicle_model'
+
 class VehicleModelsController < ApplicationController
   before_action :set_vehicle_model, only: [:show, :update, :destroy]
 
@@ -15,12 +17,12 @@ class VehicleModelsController < ApplicationController
 
   # POST /vehicle_models
   def create
-    @vehicle_model = VehicleModel.new(vehicle_model_params)
+    @vehicle_model = VehicleModelService.create_vehicle_model(vehicle_model_params)
 
-    if @vehicle_model.save
-      render json: @vehicle_model, status: :created, location: @vehicle_model
-    else
+    if @vehicle_model.errors.present?
       render json: @vehicle_model.errors, status: :unprocessable_entity
+    else
+      render json: @vehicle_model, status: :created, location: @vehicle_model
     end
   end
 
@@ -46,6 +48,6 @@ class VehicleModelsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def vehicle_model_params
-      params.require(:vehicle_model).permit(:vehicle_brand_id, :name)
+      params.permit(:name, :brand)
     end
 end

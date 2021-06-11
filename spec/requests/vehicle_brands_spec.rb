@@ -17,11 +17,11 @@ RSpec.describe "/vehicle_brands", type: :request do
   # VehicleBrand. As you add validations to VehicleBrand, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    {name: 'toyota'}
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    {}
   }
 
   # This should return the minimal set of values that should be in the headers
@@ -29,8 +29,14 @@ RSpec.describe "/vehicle_brands", type: :request do
   # VehicleBrandsController, or in your router and rack
   # middleware. Be sure to keep this updated too.
   let(:valid_headers) {
-    {}
+    {'Authorization': "Bearer #{@token}"}
   }
+
+  before do
+    User.create(email: "test@user.com", password: "123456")
+    post login_url params: {email: "test@user.com", password: "123456"}
+    @token = JSON.parse(response.body)["token"]
+  end
 
   describe "GET /index" do
     it "renders a successful response" do
@@ -43,7 +49,7 @@ RSpec.describe "/vehicle_brands", type: :request do
   describe "GET /show" do
     it "renders a successful response" do
       vehicle_brand = VehicleBrand.create! valid_attributes
-      get vehicle_brand_url(vehicle_brand), as: :json
+      get vehicle_brand_url(vehicle_brand), headers: valid_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -72,20 +78,13 @@ RSpec.describe "/vehicle_brands", type: :request do
                params: { vehicle_brand: invalid_attributes }, as: :json
         }.to change(VehicleBrand, :count).by(0)
       end
-
-      it "renders a JSON response with errors for the new vehicle_brand" do
-        post vehicle_brands_url,
-             params: { vehicle_brand: invalid_attributes }, headers: valid_headers, as: :json
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.content_type).to eq("application/json")
-      end
     end
   end
 
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        {name: 'Toyota'}
       }
 
       it "updates the requested vehicle_brand" do
@@ -93,7 +92,7 @@ RSpec.describe "/vehicle_brands", type: :request do
         patch vehicle_brand_url(vehicle_brand),
               params: { vehicle_brand: new_attributes }, headers: valid_headers, as: :json
         vehicle_brand.reload
-        skip("Add assertions for updated state")
+        expect(JSON.parse(response.body)["name"]).to eq "Toyota"
       end
 
       it "renders a JSON response with the vehicle_brand" do
@@ -102,16 +101,6 @@ RSpec.describe "/vehicle_brands", type: :request do
               params: { vehicle_brand: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including("application/json"))
-      end
-    end
-
-    context "with invalid parameters" do
-      it "renders a JSON response with errors for the vehicle_brand" do
-        vehicle_brand = VehicleBrand.create! valid_attributes
-        patch vehicle_brand_url(vehicle_brand),
-              params: { vehicle_brand: invalid_attributes }, headers: valid_headers, as: :json
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.content_type).to eq("application/json")
       end
     end
   end

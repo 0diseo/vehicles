@@ -1,9 +1,11 @@
+require_relative '../services/vehicle'
+
 class VehiclesController < ApplicationController
   before_action :set_vehicle, only: [:show, :update, :destroy]
 
   # GET /vehicles
   def index
-    @vehicles = Vehicle.all
+    @vehicles = VehiclesService.filter(filtering_params)
 
     render json: @vehicles
   end
@@ -15,9 +17,8 @@ class VehiclesController < ApplicationController
 
   # POST /vehicles
   def create
-    @vehicle = Vehicle.new(vehicle_params)
-
-    if @vehicle.save
+    @vehicle = VehiclesService.create_vehicle(vehicle_params)
+    unless @vehicle.errors.present?
       render json: @vehicle, status: :created, location: @vehicle
     else
       render json: @vehicle.errors, status: :unprocessable_entity
@@ -39,13 +40,17 @@ class VehiclesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_vehicle
-      @vehicle = Vehicle.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_vehicle
+    @vehicle = Vehicle.find(params[:id])
+  end
 
-    # Only allow a list of trusted parameters through.
-    def vehicle_params
-      params.require(:vehicle).permit(:vehicle_model_id, :year, :mileage, :price)
-    end
+  # Only allow a list of trusted parameters through.
+  def vehicle_params
+    params.permit(:brand, :model, :year, :mileage, :price)
+  end
+
+  def filtering_params
+    params.slice(:model, :brand, :year, :mileage, :price)
+  end
 end
